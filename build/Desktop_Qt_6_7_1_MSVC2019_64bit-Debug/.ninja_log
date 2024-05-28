@@ -1,0 +1,9 @@
+# ninja log v5
+6	399	7385661007735140	QT_autogen/timestamp	27ab8e1ff168a828
+6	399	7385661007735140	QT_autogen/mocs_compilation.cpp	27ab8e1ff168a828
+6	399	7385661007735140	D:/ABC/QT/build/Desktop_Qt_6_7_1_MSVC2019_64bit-Debug/QT_autogen/timestamp	27ab8e1ff168a828
+6	399	7385661007735140	D:/ABC/QT/build/Desktop_Qt_6_7_1_MSVC2019_64bit-Debug/QT_autogen/mocs_compilation.cpp	27ab8e1ff168a828
+399	1365	7385661018232496	CMakeFiles/QT.dir/QT_autogen/mocs_compilation.cpp.obj	fd4d1d9bef3d3b01
+405	1420	7385661018767981	CMakeFiles/QT.dir/main.cpp.obj	1fa7709459c643cb
+413	1458	7385661019159551	CMakeFiles/QT.dir/calculator.cpp.obj	ebb3dbf9f6cea2e2
+1459	2088	7385661024282578	QT.exe	a4a672e7e9a0a2f4
