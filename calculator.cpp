@@ -8,6 +8,36 @@
 #include <QMessageBox> // 包含 QMessageBox 类的头文件，用于消息框
 #include <QFont> // 包含 QFont 类的头文件，用于设置字体
 
+qint64 SixteenToTen(QString number){
+    qint64 base = 1;
+    qint64 ans = 0;
+
+    for(int i = number.size() - 1; i >= 0; --i) {
+        int digit;
+        if(number[i].isDigit()) {
+            digit = number[i].toLatin1() - '0';
+        } else {
+            digit = number[i].toLatin1() - 'A' + 10;
+        }
+        ans += digit * base;
+        base *= 16;
+    }
+    return ans;
+}
+
+QString TenToSixteen(qint64 res){
+    if(res==0) return "0";
+
+    QString s;
+    while(res){
+        qint64 k=res%16;
+        if(k<10) s.prepend(QString::number(k+'0'));
+        else s.prepend(QString::number(k+'A'-10));
+        res=res/16;
+    }
+    return s;
+}
+
 // Calculator 类的构造函数，初始化计算器界面
 Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     // 创建显示框
@@ -15,7 +45,7 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     display->setReadOnly(true); // 设置显示框为只读
     display->setAlignment(Qt::AlignRight); // 设置文本右对齐
     display->setMaxLength(16); // 设置最大输入长度为16个字符
-    display->setValidator(new QIntValidator(0, 0xFFFFFF, this)); // 限制输入16进制数
+    display->setValidator(new QIntValidator(0, 0xFFFFF, this)); // 限制输入16进制数
     display->setFixedSize(500, 80); // 设置显示框的固定大小
 
     // 设置显示框的字体
@@ -92,12 +122,14 @@ void Calculator::onButtonClicked() {
 
     if (clickedText == "=") { // 如果点击的是等于按钮
         calculate(currentOperation); // 执行计算操作
-    } else if (clickedText == "+" || clickedText == "-" || clickedText == "*" || clickedText == "/") {
+    }
+    else if (clickedText == "+" || clickedText == "-" || clickedText == "*" || clickedText == "/") {
         // 如果点击的是加减乘除按钮，则更新当前操作符
         currentOperation = clickedText;
         firstOperand = display->text(); // 保存当前显示的值作为第一个操作数
         display->clear(); // 清空显示框，等待输入第二个操作数
-    } else {
+    }
+    else {
         display->setText(display->text() + clickedText); // 将按钮文本添加到显示框中
     }
 }
@@ -107,9 +139,11 @@ void Calculator::calculate(const QString &operation) {
     QString secondOperand = display->text(); // 获取第二个操作数
 
     // 将十六进制字符串转换为整数
-    bool ok;
-    qint64 first = firstOperand.toInt(&ok, 16);
-    qint64 second = secondOperand.toInt(&ok, 16);
+
+
+    qint64 first = SixteenToTen(firstOperand);
+    qint64 second = SixteenToTen(secondOperand);
+
 
     // 检查操作数的范围是否超出预期范围
     if (first > static_cast<qint64>(0xFFFFFFFF) || first < static_cast<qint64>(0xFFFFFFFF) * -1 ||
@@ -120,16 +154,12 @@ void Calculator::calculate(const QString &operation) {
 
     // 执行相应的计算操作
     qint64 result;
-    if (operation == "+") {
-        result = first + second;
-    } else if (operation == "-") {
-        result = first - second;
-    } else if (operation == "*") {
-        result = first * second;
-    } else if (operation == "/") {
-        if (second != 0) {
-            result = first / second;
-        } else {
+    if (operation == "+") result = first + second;
+    else if (operation == "-") result = first - second;
+    else if (operation == "*") result = first * second;
+    else if (operation == "/") {
+        if (second != 0) result = first / second;
+        else {
             display->setText("Undefined"); // 设置显示框为 "Undefined"
             return; // 结束函数
         }
@@ -142,5 +172,6 @@ void Calculator::calculate(const QString &operation) {
     }
 
     // 将计算结果转换为十六进制字符串并显示在显示框中
-    display->setText(QString::number(result, 16).toUpper());
+    display->setText(TenToSixteen(result));
+
 }
