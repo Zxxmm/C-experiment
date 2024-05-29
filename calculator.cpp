@@ -10,6 +10,36 @@
 #include <QQueue>
 #include <QStack>
 
+qint64 SixteenToTen(QString number){
+    qint64 base = 1;
+    qint64 ans = 0;
+
+    for(int i = number.size() - 1; i >= 0; --i) {
+        int digit;
+        if(number[i].isDigit()) {
+            digit = number[i].toLatin1() - '0';
+        } else {
+            digit = number[i].toLatin1() - 'A' + 10;
+        }
+        ans += digit * base;
+        base *= 16;
+    }
+    return ans;
+}
+
+QString TenToSixteen(qint64 res){
+    if(res==0) return "0";
+
+    QString s;
+    while(res){
+        qint64 k=res%16;
+        if(k<10) s.prepend(QString::number(k+'0'));
+        else s.prepend(QString::number(k+'A'-10));
+        res=res/16;
+    }
+    return s;
+}
+
 // Calculator 类的构造函数，初始化计算器界面
 Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     // 创建显示框
@@ -17,7 +47,7 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     display->setReadOnly(true); // 设置显示框为只读
     display->setAlignment(Qt::AlignRight); // 设置文本右对齐
     display->setMaxLength(16); // 设置最大输入长度为16个字符
-    display->setValidator(new QIntValidator(0, 0xFFFFFF, this)); // 限制输入16进制数
+    display->setValidator(new QIntValidator(0, 0xFFFFF, this)); // 限制输入16进制数
     display->setFixedSize(500, 80); // 设置显示框的固定大小
 
     // 设置显示框的字体
@@ -107,6 +137,7 @@ bool isHex(QChar c) {// 判断是否为十六进制数
     return c.isDigit() || (c >= 'A' && c <= 'F');
 }
 
+
 int precedence(QChar op) {// 判断操作符的优先级
     if (op == '+' || op == '-') return 1;
     if (op == '*' || op == '/') return 2;
@@ -128,6 +159,7 @@ int applyOperator(int left, int right, QChar op) {// 计算每一个独立表达
             throw std::runtime_error("Invalid operator");
     }
 }
+
 
 // 将中缀表达式处理成后缀表达式
 QQueue<QString> infixToPostfix(const QString &infix) {
@@ -151,6 +183,7 @@ QQueue<QString> infixToPostfix(const QString &infix) {
             ++i;
         } else {
             ++i; // 跳过空格或者意外的操作符
+
         }
     }
     while (!operators.isEmpty()) {
@@ -194,5 +227,6 @@ void Calculator::calculate() {
     }
 
     // 将计算结果转换为十六进制字符串并显示在显示框中
-    display->setText(QString::number(result, 16).toUpper());
+    display->setText(TenToSixteen(result));
+
 }
