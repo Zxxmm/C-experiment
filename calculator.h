@@ -12,13 +12,12 @@ class Calculator : public QWidget {
 private:
     QString currentOperation; // 当前的操作符
     QString firstOperand; // 第一个操作数
-
     QLineEdit *display; // 显示输入和结果的文本框
     QPushButton *createButton(const QString &text); // 创建按钮的辅助函数
-    void calculate(const QString &operation); // 执行计算操作的辅助函数
+    void calculate(); // 执行计算操作的辅助函数
 
 public:
-    Calculator(QWidget *parent = nullptr); // 公有构造函数，带一个可选的父指针参数
+    explicit Calculator(QWidget *parent = nullptr); // 公有构造函数，带一个可选的父指针参数
 
 private slots: // 私有槽函数，用于响应信号
     void onButtonClicked(); // 槽函数，处理按钮点击事件
