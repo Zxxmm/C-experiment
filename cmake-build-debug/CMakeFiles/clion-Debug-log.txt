@@ -13,6 +13,6 @@
 -- Found WrapAtomic: TRUE  
 -- Found OpenGL: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/System/Library/Frameworks/OpenGL.framework   
 -- Found WrapOpenGL: TRUE  
--- Configuring done (1.6s)
+-- Configuring done (1.3s)
 -- Generating done (0.0s)
 -- Build files have been written to: /Users/osmanthuspeace/Desktop/c++/C-experiment/cmake-build-debug
