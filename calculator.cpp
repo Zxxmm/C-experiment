@@ -2,10 +2,7 @@
 #include <QGridLayout> // 包含 QGridLayout 类的头文件，用于网格布局
 #include <QLineEdit> // 包含 QLineEdit 类的头文件，用于单行文本框
 #include <QPushButton> // 包含 QPushButton 类的头文件，用于按钮
-#include <QVBoxLayout> // 包含 QVBoxLayout 类的头文件，用于垂直布局
-#include <QHBoxLayout> // 包含 QHBoxLayout 类的头文件，用于水平布局
 #include <QIntValidator> // 包含 QIntValidator 类的头文件，用于整数验证器
-#include <QMessageBox> // 包含 QMessageBox 类的头文件，用于消息框
 #include <QFont> // 包含 QFont 类的头文件，用于设置字体
 #include <QQueue>
 #include <QStack>
@@ -13,20 +10,6 @@
 
 bool isOperator(QChar c) {// 判断是否为操作符
     return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^';
-}
-
-qint64 SixteenToTen(QString number) {
-    qint64 base = 1;
-
-    qint64 ans = 0, digit;
-    for (int i = 0; i < number.size(); i++) {
-        if (number[i] >= '0' && number[i] <= '9') digit = number[i].unicode() - '0';
-        else digit = number[i].unicode() - 'A' + 10;
-
-        ans = ans + digit * base;
-        base = base * 16;
-    }
-    return ans;
 }
 
 // 将十进制整数转换为十六进制字符串
@@ -66,22 +49,22 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     int pos = 0; // 按钮位置索引
     for (int i = 0; i < 4; ++i) { // 外层循环，4行
         for (int j = 0; j < 4; ++j) { // 内层循环，4列
-            QPushButton * button = createButton(buttons[pos]); // 创建按钮
+            QPushButton *button = createButton(buttons[pos]); // 创建按钮
             mainLayout->addWidget(button, i, j); // 将按钮添加到网格布局中
             ++pos; // 增加按钮位置索引
         }
     }
 
     // 创建操作符按钮
-    QPushButton * addButton = createButton("+");
-    QPushButton * subButton = createButton("-");
-    QPushButton * mulButton = createButton("*");
-    QPushButton * divButton = createButton("/");
-    QPushButton * modButton = createButton("%");
-    QPushButton * powButton = createButton("^");
+    QPushButton *addButton = createButton("+");
+    QPushButton *subButton = createButton("-");
+    QPushButton *mulButton = createButton("*");
+    QPushButton *divButton = createButton("/");
+    QPushButton *modButton = createButton("%");
+    QPushButton *powButton = createButton("^");
 
     // 创建等号按钮
-    QPushButton * eqButton = createButton("=");
+    QPushButton *eqButton = createButton("=");
 
     // 创建垂直布局，用于排列操作符按钮
     auto *opLayout = new QVBoxLayout;
@@ -105,7 +88,7 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     setWindowTitle("Hex Calculator"); // 设置窗口标题
 
     // 创建归零按钮
-    QPushButton * zeroButton = createButton("归零");
+    QPushButton *zeroButton = createButton("归零");
     mainLayout->addWidget(zeroButton, 4, 0); // 添加归零按钮到网格布局的第五行第一列
 
     // 连接归零按钮的点击信号到槽函数
@@ -177,7 +160,7 @@ bool isHex(QChar c) {// 判断是否为十六进制数
     return c.isDigit() || (c >= 'A' && c <= 'F');
 }
 
-int precedence(QString op) {// 判断操作符的优先级
+int precedence(const QString &op) {// 判断操作符的优先级
     if (op == '+' || op == '-') return 1;
     if (op == '*' || op == '/') return 2;
     if (op == '^') return 3;
