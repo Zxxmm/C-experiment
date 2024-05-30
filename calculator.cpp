@@ -51,7 +51,6 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     QFont font;
     font.setPointSize(20); // 设置字体大小为20
     display->setFont(font);
-    display->setText("0");
 
     // 创建网格布局，用于排列按钮
     auto *mainLayout = new QGridLayout;
@@ -106,7 +105,6 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
         display->setText("0"); // 将显示框的文本设置为空
     });
 }
-
 // 创建按钮的辅助函数
 QPushButton *Calculator::createButton(const QString &text) {
     auto *button = new QPushButton(text); // 创建按钮
@@ -114,6 +112,15 @@ QPushButton *Calculator::createButton(const QString &text) {
     connect(button, &QPushButton::clicked, this, &Calculator::onButtonClicked); // 连接按钮的点击信号到槽函数
     return button; // 返回创建的按钮
 }
+
+//     QPushButton *delButton = createDesButton("Backspace", SLOT(backspaceClicked()));
+//     mainLayout->addWidget(zeroButton, 4, 1); // 添加归零按钮到网格布局的第五行第一列
+
+//     QPushButton *createDesButton(const QString &text, const char *member) {
+//     QPushButton *button = new QPushButton(text);
+//     connect(button, SIGNAL(clicked()),this, member);
+//     return button;
+// }
 
 // 按钮点击事件的槽函数
 void Calculator::onButtonClicked() {
@@ -128,7 +135,8 @@ void Calculator::onButtonClicked() {
         }
 
         if (Display == "0"||(Display[Display.length()-1] == '0'&&(Display[Display.length()-2] == '+'||Display[Display.length()-2] == '-'||Display[Display.length()-2] == '*'||Display[Display.length()-2] == '/'||Display[Display.length()-2] == '^'||Display[Display.length()-2] == '='||Display[Display.length()-2] == '%'))) {
-            display->clear();}
+            Display.pop_back();
+            display->setText(QString::fromStdString(Display));}
         display->setText(display->text() + clickedText); // 将按钮文本添加到显示框中
     }
 }

@@ -14,6 +14,7 @@ private:
     QString firstOperand; // 第一个操作数
     QLineEdit *display; // 显示输入和结果的文本框
     QPushButton *createButton(const QString &text); // 创建按钮的辅助函数
+//    QPushButton *createDesButton(const QString &text, const char *member);
     void calculate(); // 执行计算操作的辅助函数
 
 public:
