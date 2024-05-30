@@ -2,27 +2,14 @@
 #include <QGridLayout> // 包含 QGridLayout 类的头文件，用于网格布局
 #include <QLineEdit> // 包含 QLineEdit 类的头文件，用于单行文本框
 #include <QPushButton> // 包含 QPushButton 类的头文件，用于按钮
-#include <QVBoxLayout> // 包含 QVBoxLayout 类的头文件，用于垂直布局
-#include <QHBoxLayout> // 包含 QHBoxLayout 类的头文件，用于水平布局
 #include <QIntValidator> // 包含 QIntValidator 类的头文件，用于整数验证器
-#include <QMessageBox> // 包含 QMessageBox 类的头文件，用于消息框
 #include <QFont> // 包含 QFont 类的头文件，用于设置字体
 #include <QQueue>
 #include <QStack>
 #include <stdexcept>
 
-qint64 SixteenToTen(QString number){
-    qint64 base=1;
-
-    qint64 ans=0,digit;
-    for(int i=0;i<number.size();i++){
-        if(number[i]>='0' && number[i]<='9') digit=number[i].unicode()-'0';
-        else digit=number[i].unicode()-'A'+10;
-
-        ans=ans+digit*base;
-        base=base*16;
-    }
-    return ans;
+bool isOperator(QChar c) {// 判断是否为操作符
+    return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^';
 }
 
 // 将十进制整数转换为十六进制字符串
@@ -51,7 +38,6 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     QFont font;
     font.setPointSize(20); // 设置字体大小为20
     display->setFont(font);
-    display->setText("0");
 
     // 创建网格布局，用于排列按钮
     auto *mainLayout = new QGridLayout;
@@ -125,34 +111,64 @@ QPushButton *Calculator::createButton(const QString &text) {
     return button; // 返回创建的按钮
 }
 
+//     QPushButton *delButton = createDesButton("Backspace", SLOT(backspaceClicked()));
+//     mainLayout->addWidget(zeroButton, 4, 1); // 添加归零按钮到网格布局的第五行第一列
+
+//     QPushButton *createDesButton(const QString &text, const char *member) {
+//     QPushButton *button = new QPushButton(text);
+//     connect(button, SIGNAL(clicked()),this, member);
+//     return button;
+// }
+
 // 按钮点击事件的槽函数
+bool flag = true;
+
 void Calculator::onButtonClicked() {
     auto *clickedButton = qobject_cast<QPushButton *>(sender()); // 获取被点击的按钮
     QString clickedText = clickedButton->text(); // 获取按钮文本
     std::string Display = display->text().toStdString();
+
+    //防止重复输入操作符
+    if (isOperator(clickedText.toStdString()[0])) {
+        if (flag) {
+            flag = false;
+        } else {
+            return;
+        }
+    }
+
     if (clickedText == "=") { // 如果点击的是等于按钮
         if (display->text().isEmpty()) {
             display->setText("0"); // 如果显示框为空，显示0
         } else {
+            flag = true;
             calculate(); // 执行计算操作
         }
     } else {
         if (display->text().isEmpty() && (clickedText == "+" || clickedText == "-" || clickedText == "*" || clickedText == "/" || clickedText == "^" || clickedText == "%")) {
             return;
         }
+
+
+        if (Display == "0" || (Display[Display.length() - 1] == '0' &&
+                               (Display[Display.length() - 2] == '+' || Display[Display.length() - 2] == '-' ||
+                                Display[Display.length() - 2] == '*' || Display[Display.length() - 2] == '/' ||
+                                Display[Display.length() - 2] == '^' || Display[Display.length() - 2] == '=' ||
+                                Display[Display.length() - 2] == '%'))) {
+            Display.pop_back();
+            display->setText(QString::fromStdString(Display));
+        }
+
         display->setText(display->text() + clickedText); // 将按钮文本添加到显示框中
     }
 }
 
-bool isOperator(QChar c) {// 判断是否为操作符
-    return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^';
-}
 
 bool isHex(QChar c) {// 判断是否为十六进制数
     return c.isDigit() || (c >= 'A' && c <= 'F');
 }
 
-int precedence(QString op) {// 判断操作符的优先级
+int precedence(const QString &op) {// 判断操作符的优先级
     if (op == '+' || op == '-') return 1;
     if (op == '*' || op == '/') return 2;
     if (op == '^') return 3;
@@ -161,21 +177,21 @@ int precedence(QString op) {// 判断操作符的优先级
 
 qint64 applyOperator(qint64 left, qint64 right, QChar op) {// 计算每一个独立表达式
     switch (op.toLatin1()) {
-    case '+':
-        return left + right;
-    case '-':
-        return left - right;
-    case '*':
-        return left * right;
-    case '/':
-        if (right != 0) return left / right;
-        throw std::runtime_error("Division by zero");
-    case '%':
-        return left % right;
-    case '^':
-        return pow(left,right);
-    default:
-        throw std::runtime_error("Invalid operator");
+        case '+':
+            return left + right;
+        case '-':
+            return left - right;
+        case '*':
+            return left * right;
+        case '/':
+            if (right != 0) return left / right;
+            throw std::runtime_error("Division by zero");
+        case '%':
+            return left % right;
+        case '^':
+            return pow(left, right);
+        default:
+            throw std::runtime_error("Invalid operator");
     }
 }
 

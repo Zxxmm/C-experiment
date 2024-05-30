@@ -99,3 +99,11 @@
 33	183	7387428473013059	D:/ABC/QT/build/Desktop_Qt_6_7_1_MSVC2019_64bit-Debug/QT_autogen/mocs_compilation.cpp	27ab8e1ff168a828
 184	1647	7387428487653452	CMakeFiles/QT.dir/calculator.cpp.obj	ebb3dbf9f6cea2e2
 1647	1964	7387428490299636	QT.exe	a4a672e7e9a0a2f4
+6	420	7387430054906698	QT_autogen/timestamp	27ab8e1ff168a828
+6	420	7387430054906698	QT_autogen/mocs_compilation.cpp	27ab8e1ff168a828
+6	420	7387430054906698	D:/ABC/QT/build/Desktop_Qt_6_7_1_MSVC2019_64bit-Debug/QT_autogen/timestamp	27ab8e1ff168a828
+6	420	7387430054906698	D:/ABC/QT/build/Desktop_Qt_6_7_1_MSVC2019_64bit-Debug/QT_autogen/mocs_compilation.cpp	27ab8e1ff168a828
+420	1807	7387430069380199	CMakeFiles/QT.dir/QT_autogen/mocs_compilation.cpp.obj	fd4d1d9bef3d3b01
+431	1808	7387430069380199	CMakeFiles/QT.dir/main.cpp.obj	1fa7709459c643cb
+445	1823	7387430069530250	CMakeFiles/QT.dir/calculator.cpp.obj	ebb3dbf9f6cea2e2
+1823	2128	7387430072030019	QT.exe	a4a672e7e9a0a2f4
