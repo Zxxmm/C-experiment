@@ -190,7 +190,7 @@ build QT_autogen/timestamp QT_autogen/mocs_compilation.cpp | ${cmake_ninja_workd
 #############################################
 # Phony custom command for CMakeFiles/QT_autogen_timestamp_deps
 
-build CMakeFiles/QT_autogen_timestamp_deps | ${cmake_ninja_workdir}CMakeFiles/QT_autogen_timestamp_deps: phony /Users/osmanthuspeace/Qt/6.7.0/macos/./libexec/uic /Users/osmanthuspeace/Qt/6.7.0/macos/lib/QtWidgets.framework/Versions/A/QtWidgets /Users/osmanthuspeace/Qt/6.7.0/macos/./libexec/moc /Users/osmanthuspeace/Qt/6.7.0/macos/lib/QtCore.framework/Versions/A/QtCore
+build CMakeFiles/QT_autogen_timestamp_deps | ${cmake_ninja_workdir}CMakeFiles/QT_autogen_timestamp_deps: phony /Users/osmanthuspeace/Qt/6.7.0/macos/lib/QtCore.framework/Versions/A/QtCore /Users/osmanthuspeace/Qt/6.7.0/macos/./libexec/uic /Users/osmanthuspeace/Qt/6.7.0/macos/./libexec/moc /Users/osmanthuspeace/Qt/6.7.0/macos/lib/QtWidgets.framework/Versions/A/QtWidgets
 
 
 #############################################
