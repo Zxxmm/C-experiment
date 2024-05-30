@@ -9,7 +9,9 @@
 #include <QFont> // 包含 QFont 类的头文件，用于设置字体
 #include <QQueue>
 #include <QStack>
+#include <stdexcept>
 
+<<<<<<< HEAD
 qint64 SixteenToTen(QString number){
     qint64 base=1;
 
@@ -21,18 +23,25 @@ qint64 SixteenToTen(QString number){
         ans=ans+digit*base;
         base=base*16;
     }
+=======
+// 将十六进制字符串转换为十进制整数
+qint64 SixteenToTen(const QString &number) {
+    bool ok;
+    qint64 ans = number.toLongLong(&ok, 16);
+    if (!ok) throw std::runtime_error("Invalid hex number");
+>>>>>>> a783a97faf525475be7bd1aea4076942a47ff4a3
     return ans;
 }
 
-QString TenToSixteen(qint64 res){
-    if(res==0) return "0";
-
+// 将十进制整数转换为十六进制字符串
+QString TenToSixteen(qint64 res) {
+    if (res == 0) return "0";
     QString s;
-    while(res){
-        qint64 k=res%16;
-        if(k<10) s.prepend(QString::number(k+'0'));
-        else s.prepend(QString::number(k+'A'-10));
-        res=res/16;
+    while (res) {
+        qint64 k = res % 16;
+        if (k < 10) s.prepend(QChar(static_cast<int>('0' + k)));
+        else s.prepend(QChar(static_cast<int>('A' + k - 10)));
+        res = res / 16;
     }
     return s;
 }
@@ -44,7 +53,6 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     display->setReadOnly(true); // 设置显示框为只读
     display->setAlignment(Qt::AlignRight); // 设置文本右对齐
     display->setMaxLength(16); // 设置最大输入长度为16个字符
-    display->setValidator(new QIntValidator(0, 0xFFFFF, this)); // 限制输入16进制数
     display->setFixedSize(500, 80); // 设置显示框的固定大小
 
     // 设置显示框的字体
@@ -102,7 +110,7 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
 
     // 连接归零按钮的点击信号到槽函数
     connect(zeroButton, &QPushButton::clicked, this, [this]() {
-        display->setText(" "); // 将显示框的文本设置为空格
+        display->setText(""); // 将显示框的文本设置为空
     });
 }
 
@@ -134,7 +142,6 @@ bool isHex(QChar c) {// 判断是否为十六进制数
     return c.isDigit() || (c >= 'A' && c <= 'F');
 }
 
-
 int precedence(QChar op) {// 判断操作符的优先级
     if (op == '+' || op == '-') return 1;
     if (op == '*' || op == '/') return 2;
@@ -157,7 +164,6 @@ int applyOperator(int left, int right, QChar op) {// 计算每一个独立表达
     }
 }
 
-
 // 将中缀表达式处理成后缀表达式
 QQueue<QString> infixToPostfix(const QString &infix) {
     QStack<QChar> operators;// 保存临时的操作符
@@ -174,17 +180,16 @@ QQueue<QString> infixToPostfix(const QString &infix) {
         } else if (isOperator(infix[i])) {// 判断是否为操作符
             while (!operators.isEmpty() &&
                    precedence(operators.top()) >= precedence(infix[i])) {//如果操作符栈不为空且栈顶操作符优先级大于等于当前操作符
-                output.enqueue(operators.pop());//将栈顶操作符出栈并添加到 output 队列中
+                output.enqueue(QString(operators.pop()));//将栈顶操作符出栈并添加到 output 队列中
             }
             operators.push(infix[i]);// 将优先级低的当前操作符入栈
             ++i;
         } else {
             ++i; // 跳过空格或者意外的操作符
-
         }
     }
     while (!operators.isEmpty()) {
-        output.enqueue(operators.pop());// 将剩余的操作符添加到 output 队列中
+        output.enqueue(QString(operators.pop()));// 将剩余的操作符添加到 output 队列中
     }
     return output;
 }
@@ -210,7 +215,6 @@ int evaluatePostfix(const QQueue<QString> &postfix) {
     }
     return stack.top();
 }
-//A + B * 10 - 2 / 2 ----> A B 10 * + 2 2 / -
 
 // 计算操作的函数
 void Calculator::calculate() {
@@ -218,12 +222,11 @@ void Calculator::calculate() {
     QQueue<QString> postfix = infixToPostfix(expression);
     qint64 result = evaluatePostfix(postfix);
     // 检查计算结果是否超出预期范围
-    if (result > static_cast<qint64>(0xFFFFFFFF) || result < static_cast<qint64>(0xFFFFFFFF) * -1) {
+    if (result > static_cast<qint64>(0xFFFFFFFF) || result < -static_cast<qint64>(0xFFFFFFFF)) {
         display->setText("Undefined"); // 设置显示框为 "Undefined"
         return; // 结束函数
     }
 
     // 将计算结果转换为十六进制字符串并显示在显示框中
     display->setText(TenToSixteen(result));
-
 }

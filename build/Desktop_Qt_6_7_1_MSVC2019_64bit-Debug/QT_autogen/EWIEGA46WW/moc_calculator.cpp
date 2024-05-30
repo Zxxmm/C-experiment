@@ -15,6 +15,7 @@
 
 
 #include <QtCore/qxptype_traits.h>
+
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'calculator.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 68
@@ -33,12 +34,13 @@ QT_WARNING_DISABLE_GCC("-Wuseless-cast")
 namespace {
 
 #ifdef QT_MOC_HAS_STRINGDATA
-struct qt_meta_stringdata_CLASSCalculatorENDCLASS_t {};
-constexpr auto qt_meta_stringdata_CLASSCalculatorENDCLASS = QtMocHelpers::stringData(
-    "Calculator",
-    "onButtonClicked",
-    ""
-);
+    struct qt_meta_stringdata_CLASSCalculatorENDCLASS_t {
+    };
+    constexpr auto qt_meta_stringdata_CLASSCalculatorENDCLASS = QtMocHelpers::stringData(
+            "Calculator",
+            "onButtonClicked",
+            ""
+    );
 #else  // !QT_MOC_HAS_STRINGDATA
 #error "qtmochelpers.h not found or too old."
 #endif // !QT_MOC_HAS_STRINGDATA
@@ -46,69 +48,67 @@ constexpr auto qt_meta_stringdata_CLASSCalculatorENDCLASS = QtMocHelpers::string
 
 Q_CONSTINIT static const uint qt_meta_data_CLASSCalculatorENDCLASS[] = {
 
- // content:
-      12,       // revision
-       0,       // classname
-       0,    0, // classinfo
-       1,   14, // methods
-       0,    0, // properties
-       0,    0, // enums/sets
-       0,    0, // constructors
-       0,       // flags
-       0,       // signalCount
+        // content:
+        12,       // revision
+        0,       // classname
+        0, 0, // classinfo
+        1, 14, // methods
+        0, 0, // properties
+        0, 0, // enums/sets
+        0, 0, // constructors
+        0,       // flags
+        0,       // signalCount
 
- // slots: name, argc, parameters, tag, flags, initial metatype offsets
-       1,    0,   20,    2, 0x08,    1 /* Private */,
+        // slots: name, argc, parameters, tag, flags, initial metatype offsets
+        1, 0, 20, 2, 0x08, 1 /* Private */,
 
- // slots: parameters
-    QMetaType::Void,
+        // slots: parameters
+        QMetaType::Void,
 
-       0        // eod
+        0        // eod
 };
 
-Q_CONSTINIT const QMetaObject Calculator::staticMetaObject = { {
-    QMetaObject::SuperData::link<QWidget::staticMetaObject>(),
-    qt_meta_stringdata_CLASSCalculatorENDCLASS.offsetsAndSizes,
-    qt_meta_data_CLASSCalculatorENDCLASS,
-    qt_static_metacall,
-    nullptr,
-    qt_incomplete_metaTypeArray<qt_meta_stringdata_CLASSCalculatorENDCLASS_t,
-        // Q_OBJECT / Q_GADGET
-        QtPrivate::TypeAndForceComplete<Calculator, std::true_type>,
-        // method 'onButtonClicked'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>
-    >,
-    nullptr
-} };
+Q_CONSTINIT const QMetaObject Calculator::staticMetaObject = {{
+                                                                      QMetaObject::SuperData::link<QWidget::staticMetaObject>(),
+                                                                      qt_meta_stringdata_CLASSCalculatorENDCLASS.offsetsAndSizes,
+                                                                      qt_meta_data_CLASSCalculatorENDCLASS,
+                                                                      qt_static_metacall,
+                                                                      nullptr,
+                                                                      qt_incomplete_metaTypeArray<qt_meta_stringdata_CLASSCalculatorENDCLASS_t,
+                                                                              // Q_OBJECT / Q_GADGET
+                                                                              QtPrivate::TypeAndForceComplete<Calculator, std::true_type>,
+                                                                              // method 'onButtonClicked'
+                                                                              QtPrivate::TypeAndForceComplete<void, std::false_type>
+                                                                      >,
+                                                                      nullptr
+                                                              }};
 
-void Calculator::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
-{
+void Calculator::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a) {
     if (_c == QMetaObject::InvokeMetaMethod) {
         auto *_t = static_cast<Calculator *>(_o);
-        (void)_t;
+        (void) _t;
         switch (_id) {
-        case 0: _t->onButtonClicked(); break;
-        default: ;
+            case 0:
+                _t->onButtonClicked();
+                break;
+            default:;
         }
     }
-    (void)_a;
+    (void) _a;
 }
 
-const QMetaObject *Calculator::metaObject() const
-{
+const QMetaObject *Calculator::metaObject() const {
     return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
 }
 
-void *Calculator::qt_metacast(const char *_clname)
-{
+void *Calculator::qt_metacast(const char *_clname) {
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_CLASSCalculatorENDCLASS.stringdata0))
-        return static_cast<void*>(this);
+        return static_cast<void *>(this);
     return QWidget::qt_metacast(_clname);
 }
 
-int Calculator::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
-{
+int Calculator::qt_metacall(QMetaObject::Call _c, int _id, void **_a) {
     _id = QWidget::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
@@ -123,4 +123,5 @@ int Calculator::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     }
     return _id;
 }
+
 QT_WARNING_POP
