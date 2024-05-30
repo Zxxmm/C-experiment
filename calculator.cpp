@@ -2,15 +2,13 @@
 #include <QGridLayout> // 包含 QGridLayout 类的头文件，用于网格布局
 #include <QLineEdit> // 包含 QLineEdit 类的头文件，用于单行文本框
 #include <QPushButton> // 包含 QPushButton 类的头文件，用于按钮
-#include <QVBoxLayout> // 包含 QVBoxLayout 类的头文件，用于垂直布局
-#include <QHBoxLayout> // 包含 QHBoxLayout 类的头文件，用于水平布局
 #include <QIntValidator> // 包含 QIntValidator 类的头文件，用于整数验证器
-#include <QMessageBox> // 包含 QMessageBox 类的头文件，用于消息框
 #include <QFont> // 包含 QFont 类的头文件，用于设置字体
 #include <QQueue>
 #include <QStack>
 #include <stdexcept>
 
+<<<<<<< HEAD
 bool isOperator(QChar c);
 
 qint64 SixteenToTen(QString number){
@@ -25,6 +23,10 @@ qint64 SixteenToTen(QString number){
         base=base*16;
     }
     return ans;
+=======
+bool isOperator(QChar c) {// 判断是否为操作符
+    return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^';
+>>>>>>> 69c5b9ed9da1ff2a8521cf28e8d8b3a796b14efa
 }
 
 // 将十进制整数转换为十六进制字符串
@@ -47,7 +49,7 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     display->setReadOnly(true); // 设置显示框为只读
     display->setAlignment(Qt::AlignRight); // 设置文本右对齐
     display->setMaxLength(16); // 设置最大输入长度为16个字符
-    display->setFixedSize(500, 80); // 设置显示框的固定大小
+    display->setFixedSize(420, 80); // 设置显示框的固定大小
 
     // 设置显示框的字体
     QFont font;
@@ -58,11 +60,11 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     auto *mainLayout = new QGridLayout;
 
     // 定义按钮文本数组
-    QString buttons[16] = {"0", "1", "2", "3", "4", "5", "6", "7",
-                           "8", "9", "A", "B", "C", "D", "E", "F"};
+    QString buttons[16] = {"F", "7", "8", "9", "E", "4", "5", "6",
+                           "D", "1", "2", "3", "C", "B", "A", "0"};
 
     int pos = 0; // 按钮位置索引
-    for (int i = 0; i < 4; ++i) { // 外层循环，4行
+    for (int i = 1; i <= 4; ++i) { // 外层循环，4行
         for (int j = 0; j < 4; ++j) { // 内层循环，4列
             QPushButton *button = createButton(buttons[pos]); // 创建按钮
             mainLayout->addWidget(button, i, j); // 将按钮添加到网格布局中
@@ -92,7 +94,13 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     opLayout->addWidget(eqButton);  // 添加等号按钮到布局
 
     // 将操作符按钮布局添加到网格布局的右侧
-    mainLayout->addLayout(opLayout, 0, 4, 4, 1);
+    mainLayout->addWidget(eqButton,4,4);
+    mainLayout->addWidget(addButton,3,4);
+    mainLayout->addWidget(subButton,2,4);
+    mainLayout->addWidget(mulButton,1,4);
+    mainLayout->addWidget(divButton,0,4);
+    mainLayout->addWidget(modButton,0,3);
+    mainLayout->addWidget(powButton,0,2);
 
     // 创建垂直布局，将显示框和网格布局添加到布局中
     auto *layout = new QVBoxLayout;
@@ -104,7 +112,7 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
 
     // 创建归零按钮
     QPushButton *zeroButton = createButton("归零");
-    mainLayout->addWidget(zeroButton, 4, 0); // 添加归零按钮到网格布局的第五行第一列
+    mainLayout->addWidget(zeroButton, 0, 0); // 添加归零按钮到网格布局的第五行第一列
 
     // 连接归零按钮的点击信号到槽函数
     connect(zeroButton, &QPushButton::clicked, this, [this]() {
@@ -116,6 +124,7 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
 
     connect(backspaceButton,&QPushButton::clicked,this, [this](){backspaceClicked();});
 }
+
 // 创建按钮的辅助函数
 QPushButton *Calculator::createButton(const QString &text) {
     auto *button = new QPushButton(text); // 创建按钮
@@ -131,28 +140,53 @@ QPushButton *Calculator::createDesButton(const QString &text, const char *member
     return button;
 }
 // 按钮点击事件的槽函数
+bool flag = true;
+
 void Calculator::onButtonClicked() {
     auto *clickedButton = qobject_cast<QPushButton *>(sender()); // 获取被点击的按钮
     QString clickedText = clickedButton->text(); // 获取按钮文本
     std::string Display = display->text().toStdString();
+
+    //防止重复输入操作符
+    if (isOperator(clickedText.toStdString()[0])) {
+        if (flag) {
+            flag = false;
+        } else {
+            return;
+        }
+    }
+
     if (clickedText == "=") { // 如果点击的是等于按钮
         if (display->text().isEmpty()) {
             display->setText("0"); // 如果显示框为空，显示0
         } else {
+            flag = true;
             calculate(); // 执行计算操作
         }
     } else {
-        if (Display == "0" && clickedText == "0") {
+        if (display->text().isEmpty() && (clickedText == "+" || clickedText == "-" || clickedText == "*" || clickedText == "/" || clickedText == "^" || clickedText == "%")) {
             return;
         }
 
+<<<<<<< HEAD
         if (Display == "0"||(Display[Display.length()-1] == '0'&&(isOperator(Display[Display.length()-2])))) {
+=======
+
+        if (Display == "0" || (Display[Display.length() - 1] == '0' &&
+                               (Display[Display.length() - 2] == '+' || Display[Display.length() - 2] == '-' ||
+                                Display[Display.length() - 2] == '*' || Display[Display.length() - 2] == '/' ||
+                                Display[Display.length() - 2] == '^' || Display[Display.length() - 2] == '=' ||
+                                Display[Display.length() - 2] == '%'))) {
+>>>>>>> 69c5b9ed9da1ff2a8521cf28e8d8b3a796b14efa
             Display.pop_back();
-            display->setText(QString::fromStdString(Display));}
+            display->setText(QString::fromStdString(Display));
+        }
+
         display->setText(display->text() + clickedText); // 将按钮文本添加到显示框中
     }
 }
 
+<<<<<<< HEAD
 void Calculator::backspaceClicked() {
     std::string Display = display->text().toStdString();
     if (Display.length() > 1) {
@@ -166,12 +200,14 @@ void Calculator::backspaceClicked() {
 bool isOperator(QChar c) {// 判断是否为操作符
     return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^';
 }
+=======
+>>>>>>> 69c5b9ed9da1ff2a8521cf28e8d8b3a796b14efa
 
 bool isHex(QChar c) {// 判断是否为十六进制数
     return c.isDigit() || (c >= 'A' && c <= 'F');
 }
 
-int precedence(QString op) {// 判断操作符的优先级
+int precedence(const QString &op) {// 判断操作符的优先级
     if (op == '+' || op == '-') return 1;
     if (op == '*' || op == '/') return 2;
     if (op == '^') return 3;
@@ -180,21 +216,21 @@ int precedence(QString op) {// 判断操作符的优先级
 
 qint64 applyOperator(qint64 left, qint64 right, QChar op) {// 计算每一个独立表达式
     switch (op.toLatin1()) {
-    case '+':
-        return left + right;
-    case '-':
-        return left - right;
-    case '*':
-        return left * right;
-    case '/':
-        if (right != 0) return left / right;
-        throw std::runtime_error("Division by zero");
-    case '%':
-        return left % right;
-    case '^':
-        return pow(left,right);
-    default:
-        throw std::runtime_error("Invalid operator");
+        case '+':
+            return left + right;
+        case '-':
+            return left - right;
+        case '*':
+            return left * right;
+        case '/':
+            if (right != 0) return left / right;
+            throw std::runtime_error("Division by zero");
+        case '%':
+            return left % right;
+        case '^':
+            return pow(left, right);
+        default:
+            throw std::runtime_error("Invalid operator");
     }
 }
 
@@ -234,7 +270,7 @@ qint64 evaluatePostfix(const QQueue<QString> &postfix) {
     QQueue<QString> tempQueue = postfix;
     while (!tempQueue.isEmpty()) {
         QString token = tempQueue.dequeue();// 从队列中取出一个 token
-        if (token.length() > 0 && isHex(token[0])) {//如果是数字，入站
+        if (token.length() > 0 && isHex(token[0])) {//如果是数字，入栈
             bool ok;
             qint64 value = token.toInt(&ok, 16);//将十六进制的token转化为int
             if (ok) {
