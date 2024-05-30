@@ -9,18 +9,15 @@
 #include <QFont> // 包含 QFont 类的头文件，用于设置字体
 
 qint64 SixteenToTen(QString number){
-    qint64 base = 1;
-    qint64 ans = 0;
+    qint64 base=1;
 
-    for(int i = number.size() - 1; i >= 0; --i) {
-        int digit;
-        if(number[i].isDigit()) {
-            digit = number[i].toLatin1() - '0';
-        } else {
-            digit = number[i].toLatin1() - 'A' + 10;
-        }
-        ans += digit * base;
-        base *= 16;
+    qint64 ans=0,digit;
+    for(int i=0;i<number.size();i++){
+        if(number[i]>='0' && number[i]<='9') digit=number[i].unicode()-'0';
+        else digit=number[i].unicode()-'A'+10;
+
+        ans=ans+digit*base;
+        base=base*16;
     }
     return ans;
 }
