@@ -11,7 +11,6 @@
 #include <QStack>
 #include <stdexcept>
 
-
 qint64 SixteenToTen(QString number){
     qint64 base=1;
 
@@ -52,6 +51,7 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     QFont font;
     font.setPointSize(20); // 设置字体大小为20
     display->setFont(font);
+    display->setText("0");
 
     // 创建网格布局，用于排列按钮
     auto *mainLayout = new QGridLayout;
@@ -107,7 +107,7 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
 
     // 连接归零按钮的点击信号到槽函数
     connect(zeroButton, &QPushButton::clicked, this, [this]() {
-        display->setText(""); // 将显示框的文本设置为空
+        display->setText("0"); // 将显示框的文本设置为空
     });
 }
 
@@ -123,7 +123,7 @@ QPushButton *Calculator::createButton(const QString &text) {
 void Calculator::onButtonClicked() {
     auto *clickedButton = qobject_cast<QPushButton *>(sender()); // 获取被点击的按钮
     QString clickedText = clickedButton->text(); // 获取按钮文本
-
+    std::string Display = display->text().toStdString();
     if (clickedText == "=") { // 如果点击的是等于按钮
         if (display->text().isEmpty()) {
             display->setText("0"); // 如果显示框为空，显示0
@@ -131,6 +131,12 @@ void Calculator::onButtonClicked() {
             calculate(); // 执行计算操作
         }
     } else {
+        if (Display == "0" && clickedText == "0") {
+            return;
+        }
+
+        if (Display == "0"||(Display[Display.length()-1] == '0'&&(Display[Display.length()-2] == '+'||Display[Display.length()-2] == '-'||Display[Display.length()-2] == '*'||Display[Display.length()-2] == '/'||Display[Display.length()-2] == '^'||Display[Display.length()-2] == '='||Display[Display.length()-2] == '%'))) {
+            display->clear();}
         display->setText(display->text() + clickedText); // 将按钮文本添加到显示框中
     }
 }
