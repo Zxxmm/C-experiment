@@ -11,7 +11,7 @@
 #include <QStack>
 #include <stdexcept>
 
-<<<<<<< HEAD
+
 qint64 SixteenToTen(QString number){
     qint64 base=1;
 
@@ -23,13 +23,6 @@ qint64 SixteenToTen(QString number){
         ans=ans+digit*base;
         base=base*16;
     }
-=======
-// 将十六进制字符串转换为十进制整数
-qint64 SixteenToTen(const QString &number) {
-    bool ok;
-    qint64 ans = number.toLongLong(&ok, 16);
-    if (!ok) throw std::runtime_error("Invalid hex number");
->>>>>>> a783a97faf525475be7bd1aea4076942a47ff4a3
     return ans;
 }
 
@@ -81,6 +74,8 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     QPushButton *subButton = createButton("-");
     QPushButton *mulButton = createButton("*");
     QPushButton *divButton = createButton("/");
+    QPushButton *modButton = createButton("%");
+    QPushButton *powButton = createButton("^");
 
     // 创建等号按钮
     QPushButton *eqButton = createButton("=");
@@ -91,7 +86,9 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     opLayout->addWidget(subButton); // 添加减法按钮到布局
     opLayout->addWidget(mulButton); // 添加乘法按钮到布局
     opLayout->addWidget(divButton); // 添加除法按钮到布局
-    opLayout->addWidget(eqButton); // 添加等号按钮到布局
+    opLayout->addWidget(modButton); // 添加取模按钮到布局
+    opLayout->addWidget(powButton); // 添加次方按钮到布局
+    opLayout->addWidget(eqButton);  // 添加等号按钮到布局
 
     // 将操作符按钮布局添加到网格布局的右侧
     mainLayout->addLayout(opLayout, 0, 4, 4, 1);
@@ -128,39 +125,48 @@ void Calculator::onButtonClicked() {
     QString clickedText = clickedButton->text(); // 获取按钮文本
 
     if (clickedText == "=") { // 如果点击的是等于按钮
-        calculate(); // 执行计算操作
+        if (display->text().isEmpty()) {
+            display->setText("0"); // 如果显示框为空，显示0
+        } else {
+            calculate(); // 执行计算操作
+        }
     } else {
         display->setText(display->text() + clickedText); // 将按钮文本添加到显示框中
     }
 }
 
 bool isOperator(QChar c) {// 判断是否为操作符
-    return c == '+' || c == '-' || c == '*' || c == '/';
+    return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^';
 }
 
 bool isHex(QChar c) {// 判断是否为十六进制数
     return c.isDigit() || (c >= 'A' && c <= 'F');
 }
 
-int precedence(QChar op) {// 判断操作符的优先级
+int precedence(QString op) {// 判断操作符的优先级
     if (op == '+' || op == '-') return 1;
     if (op == '*' || op == '/') return 2;
+    if (op == '^') return 3;
     return 0;
 }
 
-int applyOperator(int left, int right, QChar op) {// 计算每一个独立表达式
+qint64 applyOperator(qint64 left, qint64 right, QChar op) {// 计算每一个独立表达式
     switch (op.toLatin1()) {
-        case '+':
-            return left + right;
-        case '-':
-            return left - right;
-        case '*':
-            return left * right;
-        case '/':
-            if (right != 0) return left / right;
-            throw std::runtime_error("Division by zero");
-        default:
-            throw std::runtime_error("Invalid operator");
+    case '+':
+        return left + right;
+    case '-':
+        return left - right;
+    case '*':
+        return left * right;
+    case '/':
+        if (right != 0) return left / right;
+        throw std::runtime_error("Division by zero");
+    case '%':
+        return left % right;
+    case '^':
+        return pow(left,right);
+    default:
+        throw std::runtime_error("Invalid operator");
     }
 }
 
@@ -195,21 +201,21 @@ QQueue<QString> infixToPostfix(const QString &infix) {
 }
 
 // 计算一个十六进制的后缀表达式
-int evaluatePostfix(const QQueue<QString> &postfix) {
-    QStack<int> stack;
+qint64 evaluatePostfix(const QQueue<QString> &postfix) {
+    QStack<qint64> stack;
     QQueue<QString> tempQueue = postfix;
     while (!tempQueue.isEmpty()) {
         QString token = tempQueue.dequeue();// 从队列中取出一个 token
         if (token.length() > 0 && isHex(token[0])) {//如果是数字，入站
             bool ok;
-            int value = token.toInt(&ok, 16);//将十六进制的token转化为int
+            qint64 value = token.toInt(&ok, 16);//将十六进制的token转化为int
             if (ok) {
                 stack.push(value);
             }
         } else if (isOperator(token[0])) {//如果是操作符，弹出两个数进行计算
-            int right = stack.pop();
-            int left = stack.pop();
-            int result = applyOperator(left, right, token[0]);
+            qint64 right = stack.pop();
+            qint64 left = stack.pop();
+            qint64 result = applyOperator(left, right, token[0]);
             stack.push(result);
         }
     }
@@ -222,7 +228,7 @@ void Calculator::calculate() {
     QQueue<QString> postfix = infixToPostfix(expression);
     qint64 result = evaluatePostfix(postfix);
     // 检查计算结果是否超出预期范围
-    if (result > static_cast<qint64>(0xFFFFFFFF) || result < -static_cast<qint64>(0xFFFFFFFF)) {
+    if (result > static_cast<qint64>(0xFFFFFFFFFFFFFFF) || result < -static_cast<qint64>(0xFFFFFFFFFFFFFFF)) {
         display->setText("Undefined"); // 设置显示框为 "Undefined"
         return; // 结束函数
     }
