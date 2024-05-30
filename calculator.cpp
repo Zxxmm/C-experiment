@@ -11,6 +11,8 @@
 #include <QStack>
 #include <stdexcept>
 
+bool isOperator(QChar c);
+
 qint64 SixteenToTen(QString number){
     qint64 base=1;
 
@@ -108,6 +110,11 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     connect(zeroButton, &QPushButton::clicked, this, [this]() {
         display->setText("0"); // 将显示框的文本设置为空
     });
+
+    QPushButton *backspaceButton = createDesButton("Backspace",SLOT(backspaceClicked()));
+    mainLayout->addWidget(backspaceButton, 4, 1); // 添加归零按钮到网格布局的第五行第一列
+
+    connect(backspaceButton,&QPushButton::clicked,this, [this](){backspaceClicked();});
 }
 // 创建按钮的辅助函数
 QPushButton *Calculator::createButton(const QString &text) {
@@ -116,16 +123,13 @@ QPushButton *Calculator::createButton(const QString &text) {
     connect(button, &QPushButton::clicked, this, &Calculator::onButtonClicked); // 连接按钮的点击信号到槽函数
     return button; // 返回创建的按钮
 }
-
-//     QPushButton *delButton = createDesButton("Backspace", SLOT(backspaceClicked()));
-//     mainLayout->addWidget(zeroButton, 4, 1); // 添加归零按钮到网格布局的第五行第一列
-
-//     QPushButton *createDesButton(const QString &text, const char *member) {
-//     QPushButton *button = new QPushButton(text);
-//     connect(button, SIGNAL(clicked()),this, member);
-//     return button;
-// }
-
+// 创建删除按钮的辅助函数
+QPushButton *Calculator::createDesButton(const QString &text, const char *member) {
+    QPushButton *button = new QPushButton(text);
+    button->setMinimumSize(40, 40); // 设置按钮的最小大小
+    connect(button, &QPushButton::clicked,this, &Calculator::backspaceClicked);
+    return button;
+}
 // 按钮点击事件的槽函数
 void Calculator::onButtonClicked() {
     auto *clickedButton = qobject_cast<QPushButton *>(sender()); // 获取被点击的按钮
@@ -142,10 +146,20 @@ void Calculator::onButtonClicked() {
             return;
         }
 
-        if (Display == "0"||(Display[Display.length()-1] == '0'&&(Display[Display.length()-2] == '+'||Display[Display.length()-2] == '-'||Display[Display.length()-2] == '*'||Display[Display.length()-2] == '/'||Display[Display.length()-2] == '^'||Display[Display.length()-2] == '='||Display[Display.length()-2] == '%'))) {
+        if (Display == "0"||(Display[Display.length()-1] == '0'&&(isOperator(Display[Display.length()-2])))) {
             Display.pop_back();
             display->setText(QString::fromStdString(Display));}
         display->setText(display->text() + clickedText); // 将按钮文本添加到显示框中
+    }
+}
+
+void Calculator::backspaceClicked() {
+    std::string Display = display->text().toStdString();
+    if (Display.length() > 1) {
+        Display.pop_back();
+        display->setText(QString::fromStdString(Display));
+    } else {
+        display->setText("0");
     }
 }
 
