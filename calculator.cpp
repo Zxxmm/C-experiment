@@ -7,6 +7,8 @@
 #include <QIntValidator> // 包含 QIntValidator 类的头文件，用于整数验证器
 #include <QMessageBox> // 包含 QMessageBox 类的头文件，用于消息框
 #include <QFont> // 包含 QFont 类的头文件，用于设置字体
+#include <QQueue>
+#include <QStack>
 
 qint64 SixteenToTen(QString number){
     qint64 base=1;
@@ -51,7 +53,7 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     display->setFont(font);
 
     // 创建网格布局，用于排列按钮
-    QGridLayout *mainLayout = new QGridLayout;
+    auto *mainLayout = new QGridLayout;
 
     // 定义按钮文本数组
     QString buttons[16] = {"0", "1", "2", "3", "4", "5", "6", "7",
@@ -76,7 +78,7 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     QPushButton *eqButton = createButton("=");
 
     // 创建垂直布局，用于排列操作符按钮
-    QVBoxLayout *opLayout = new QVBoxLayout;
+    auto *opLayout = new QVBoxLayout;
     opLayout->addWidget(addButton); // 添加加法按钮到布局
     opLayout->addWidget(subButton); // 添加减法按钮到布局
     opLayout->addWidget(mulButton); // 添加乘法按钮到布局
@@ -87,7 +89,7 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     mainLayout->addLayout(opLayout, 0, 4, 4, 1);
 
     // 创建垂直布局，将显示框和网格布局添加到布局中
-    QVBoxLayout *layout = new QVBoxLayout;
+    auto *layout = new QVBoxLayout;
     layout->addWidget(display); // 添加显示框到布局
     layout->addLayout(mainLayout); // 添加网格布局到布局
 
@@ -105,8 +107,8 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
 }
 
 // 创建按钮的辅助函数
-QPushButton* Calculator::createButton(const QString &text) {
-    QPushButton *button = new QPushButton(text); // 创建按钮
+QPushButton *Calculator::createButton(const QString &text) {
+    auto *button = new QPushButton(text); // 创建按钮
     button->setMinimumSize(40, 40); // 设置按钮的最小大小
     connect(button, &QPushButton::clicked, this, &Calculator::onButtonClicked); // 连接按钮的点击信号到槽函数
     return button; // 返回创建的按钮
@@ -114,54 +116,107 @@ QPushButton* Calculator::createButton(const QString &text) {
 
 // 按钮点击事件的槽函数
 void Calculator::onButtonClicked() {
-    QPushButton *clickedButton = qobject_cast<QPushButton*>(sender()); // 获取被点击的按钮
+    auto *clickedButton = qobject_cast<QPushButton *>(sender()); // 获取被点击的按钮
     QString clickedText = clickedButton->text(); // 获取按钮文本
 
     if (clickedText == "=") { // 如果点击的是等于按钮
-        calculate(currentOperation); // 执行计算操作
-    }
-    else if (clickedText == "+" || clickedText == "-" || clickedText == "*" || clickedText == "/") {
-        // 如果点击的是加减乘除按钮，则更新当前操作符
-        currentOperation = clickedText;
-        firstOperand = display->text(); // 保存当前显示的值作为第一个操作数
-        display->clear(); // 清空显示框，等待输入第二个操作数
-    }
-    else {
+        calculate(); // 执行计算操作
+    } else {
         display->setText(display->text() + clickedText); // 将按钮文本添加到显示框中
     }
 }
 
-// 计算操作的函数
-void Calculator::calculate(const QString &operation) {
-    QString secondOperand = display->text(); // 获取第二个操作数
+bool isOperator(QChar c) {// 判断是否为操作符
+    return c == '+' || c == '-' || c == '*' || c == '/';
+}
 
-    // 将十六进制字符串转换为整数
-
-
-    qint64 first = SixteenToTen(firstOperand);
-    qint64 second = SixteenToTen(secondOperand);
+bool isHex(QChar c) {// 判断是否为十六进制数
+    return c.isDigit() || (c >= 'A' && c <= 'F');
+}
 
 
-    // 检查操作数的范围是否超出预期范围
-    if (first > static_cast<qint64>(0xFFFFFFFF) || first < static_cast<qint64>(0xFFFFFFFF) * -1 ||
-        second > static_cast<qint64>(0xFFFFFFFF) || second < static_cast<qint64>(0xFFFFFFFF) * -1) {
-        display->setText("Undefined"); // 设置显示框为 "Undefined"
-        return; // 结束函数
+int precedence(QChar op) {// 判断操作符的优先级
+    if (op == '+' || op == '-') return 1;
+    if (op == '*' || op == '/') return 2;
+    return 0;
+}
+
+int applyOperator(int left, int right, QChar op) {// 计算每一个独立表达式
+    switch (op.toLatin1()) {
+        case '+':
+            return left + right;
+        case '-':
+            return left - right;
+        case '*':
+            return left * right;
+        case '/':
+            if (right != 0) return left / right;
+            throw std::runtime_error("Division by zero");
+        default:
+            throw std::runtime_error("Invalid operator");
     }
+}
 
-    // 执行相应的计算操作
-    qint64 result;
-    if (operation == "+") result = first + second;
-    else if (operation == "-") result = first - second;
-    else if (operation == "*") result = first * second;
-    else if (operation == "/") {
-        if (second != 0) result = first / second;
-        else {
-            display->setText("Undefined"); // 设置显示框为 "Undefined"
-            return; // 结束函数
+
+// 将中缀表达式处理成后缀表达式
+QQueue<QString> infixToPostfix(const QString &infix) {
+    QStack<QChar> operators;// 保存临时的操作符
+    QQueue<QString> output;// 保存后缀表达式
+    int i = 0;
+    while (i < infix.length()) {
+        if (isHex(infix[i])) {// 判断是否为十六进制数的第一位
+            QString number;// 保存一个十六进制数
+            while (i < infix.length() && isHex(infix[i])) {// 判断是否为十六进制数的后续位
+                number.append(infix[i]);// 添加到 number 中
+                ++i;
+            }
+            output.enqueue(number);// 将 number 添加到 output 队列中
+        } else if (isOperator(infix[i])) {// 判断是否为操作符
+            while (!operators.isEmpty() &&
+                   precedence(operators.top()) >= precedence(infix[i])) {//如果操作符栈不为空且栈顶操作符优先级大于等于当前操作符
+                output.enqueue(operators.pop());//将栈顶操作符出栈并添加到 output 队列中
+            }
+            operators.push(infix[i]);// 将优先级低的当前操作符入栈
+            ++i;
+        } else {
+            ++i; // 跳过空格或者意外的操作符
+
         }
     }
+    while (!operators.isEmpty()) {
+        output.enqueue(operators.pop());// 将剩余的操作符添加到 output 队列中
+    }
+    return output;
+}
 
+// 计算一个十六进制的后缀表达式
+int evaluatePostfix(const QQueue<QString> &postfix) {
+    QStack<int> stack;
+    QQueue<QString> tempQueue = postfix;
+    while (!tempQueue.isEmpty()) {
+        QString token = tempQueue.dequeue();// 从队列中取出一个 token
+        if (token.length() > 0 && isHex(token[0])) {//如果是数字，入站
+            bool ok;
+            int value = token.toInt(&ok, 16);//将十六进制的token转化为int
+            if (ok) {
+                stack.push(value);
+            }
+        } else if (isOperator(token[0])) {//如果是操作符，弹出两个数进行计算
+            int right = stack.pop();
+            int left = stack.pop();
+            int result = applyOperator(left, right, token[0]);
+            stack.push(result);
+        }
+    }
+    return stack.top();
+}
+//A + B * 10 - 2 / 2 ----> A B 10 * + 2 2 / -
+
+// 计算操作的函数
+void Calculator::calculate() {
+    QString expression = display->text(); // 获取输入的表达式
+    QQueue<QString> postfix = infixToPostfix(expression);
+    qint64 result = evaluatePostfix(postfix);
     // 检查计算结果是否超出预期范围
     if (result > static_cast<qint64>(0xFFFFFFFF) || result < static_cast<qint64>(0xFFFFFFFF) * -1) {
         display->setText("Undefined"); // 设置显示框为 "Undefined"
