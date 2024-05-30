@@ -8,25 +8,9 @@
 #include <QStack>
 #include <stdexcept>
 
-<<<<<<< HEAD
-bool isOperator(QChar c);
 
-qint64 SixteenToTen(QString number){
-    qint64 base=1;
-
-    qint64 ans=0,digit;
-    for(int i=0;i<number.size();i++){
-        if(number[i]>='0' && number[i]<='9') digit=number[i].unicode()-'0';
-        else digit=number[i].unicode()-'A'+10;
-
-        ans=ans+digit*base;
-        base=base*16;
-    }
-    return ans;
-=======
 bool isOperator(QChar c) {// 判断是否为操作符
     return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^';
->>>>>>> 69c5b9ed9da1ff2a8521cf28e8d8b3a796b14efa
 }
 
 // 将十进制整数转换为十六进制字符串
@@ -120,7 +104,7 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     });
 
     QPushButton *backspaceButton = createDesButton("Backspace",SLOT(backspaceClicked()));
-    mainLayout->addWidget(backspaceButton, 4, 1); // 添加归零按钮到网格布局的第五行第一列
+    mainLayout->addWidget(backspaceButton, 0, 1); // 添加归零按钮到网格布局的第五行第一列
 
     connect(backspaceButton,&QPushButton::clicked,this, [this](){backspaceClicked();});
 }
@@ -168,16 +152,9 @@ void Calculator::onButtonClicked() {
             return;
         }
 
-<<<<<<< HEAD
-        if (Display == "0"||(Display[Display.length()-1] == '0'&&(isOperator(Display[Display.length()-2])))) {
-=======
 
-        if (Display == "0" || (Display[Display.length() - 1] == '0' &&
-                               (Display[Display.length() - 2] == '+' || Display[Display.length() - 2] == '-' ||
-                                Display[Display.length() - 2] == '*' || Display[Display.length() - 2] == '/' ||
-                                Display[Display.length() - 2] == '^' || Display[Display.length() - 2] == '=' ||
-                                Display[Display.length() - 2] == '%'))) {
->>>>>>> 69c5b9ed9da1ff2a8521cf28e8d8b3a796b14efa
+        if (Display == "0"||(Display[Display.length()-1] == '0'&&(isOperator(Display[Display.length()-2])))) {
+
             Display.pop_back();
             display->setText(QString::fromStdString(Display));
         }
@@ -186,7 +163,6 @@ void Calculator::onButtonClicked() {
     }
 }
 
-<<<<<<< HEAD
 void Calculator::backspaceClicked() {
     std::string Display = display->text().toStdString();
     if (Display.length() > 1) {
@@ -196,12 +172,6 @@ void Calculator::backspaceClicked() {
         display->setText("0");
     }
 }
-
-bool isOperator(QChar c) {// 判断是否为操作符
-    return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^';
-}
-=======
->>>>>>> 69c5b9ed9da1ff2a8521cf28e8d8b3a796b14efa
 
 bool isHex(QChar c) {// 判断是否为十六进制数
     return c.isDigit() || (c >= 'A' && c <= 'F');
