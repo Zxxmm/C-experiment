@@ -7,6 +7,7 @@
 #include <QQueue>
 #include <QStack>
 #include <stdexcept>
+#include <iostream>
 
 
 bool isOperator(QChar c) {// 判断是否为操作符
@@ -103,9 +104,11 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
         display->setText("0"); // 将显示框的文本设置为空
     });
 
+    //创建删除按钮
     QPushButton *backspaceButton = createDesButton("Backspace",SLOT(backspaceClicked()));
     mainLayout->addWidget(backspaceButton, 0, 1); // 添加归零按钮到网格布局的第五行第一列
 
+    //连接删除按钮的点击信号到槽函数
     connect(backspaceButton,&QPushButton::clicked,this, [this](){backspaceClicked();});
 }
 
@@ -148,12 +151,12 @@ void Calculator::onButtonClicked() {
             calculate(); // 执行计算操作
         }
     } else {
-        if (display->text().isEmpty() && (clickedText == "+" || clickedText == "-" || clickedText == "*" || clickedText == "/" || clickedText == "^" || clickedText == "%")) {
+        if (display->text().isEmpty() && (isOperator(clickedText.toStdString()[0]))) {
             return;
         }
 
 
-        if (Display == "0"||(Display[Display.length()-1] == '0'&&(isOperator(Display[Display.length()-2])))) {
+        else if (Display == "0"||(Display[Display.length()-1] == '0'&&(isOperator(Display[Display.length()-2])))) {
 
             Display.pop_back();
             display->setText(QString::fromStdString(Display));
