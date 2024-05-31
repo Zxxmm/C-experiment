@@ -27,6 +27,105 @@ QString TenToSixteen(qint64 res) {
     return s;
 }
 
+bool isHex(QChar c) {// 判断是否为十六进制数
+    return c.isDigit() || (c >= 'A' && c <= 'F');
+}
+
+int precedence(const QString &op) {// 判断操作符的优先级
+    if (op == '+' || op == '-') return 1;
+    if (op == '*' || op == '/') return 2;
+    if (op == '^') return 3;
+    return 0;
+
+}
+
+qint64 applyOperator(qint64 left, qint64 right, QChar op) {// 计算每一个独立表达式
+    switch (op.toLatin1()) {
+        case '+':
+            return left + right;
+        case '-':
+            return left - right;
+        case '*':
+            return left * right;
+        case '/':
+            if (right != 0) return left / right;
+            throw std::runtime_error("Division by zero");
+        case '%':
+            return left % right;
+        case '^':
+            return pow(left, right);
+        default:
+            throw std::runtime_error("Invalid operator");
+    }
+}
+
+// 将中缀表达式处理成后缀表达式
+QQueue<QString> infixToPostfix(const QString &infix) {
+    QStack<QChar> operators;// 保存临时的操作符
+    QQueue<QString> output;// 保存后缀表达式
+    int i = 0;
+    while (i < infix.length()) {
+        if (isHex(infix[i])) {// 判断是否为十六进制数的第一位
+            QString number;// 保存一个十六进制数
+            while (i < infix.length() && isHex(infix[i])) {// 判断是否为十六进制数的后续位
+                number.append(infix[i]);// 添加到 number 中
+                ++i;
+            }
+            output.enqueue(number);// 将 number 添加到 output 队列中
+        } else if (isOperator(infix[i])) {// 判断是否为操作符
+            while (!operators.isEmpty() &&
+                   precedence(operators.top()) >= precedence(infix[i])) {//如果操作符栈不为空且栈顶操作符优先级大于等于当前操作符
+                output.enqueue(QString(operators.pop()));//将栈顶操作符出栈并添加到 output 队列中
+            }
+            operators.push(infix[i]);// 将优先级低的当前操作符入栈
+            ++i;
+        } else {
+            ++i; // 跳过空格或者意外的操作符
+        }
+    }
+    while (!operators.isEmpty()) {
+        output.enqueue(QString(operators.pop()));// 将剩余的操作符添加到 output 队列中
+    }
+    return output;
+}
+
+// 计算一个十六进制的后缀表达式
+qint64 evaluatePostfix(const QQueue<QString> &postfix) {
+    QStack<qint64> stack;
+    QQueue<QString> tempQueue = postfix;
+    while (!tempQueue.isEmpty()) {
+        QString token = tempQueue.dequeue();// 从队列中取出一个 token
+        if (token.length() > 0 && isHex(token[0])) {//如果是数字，入栈
+            bool ok;
+            qint64 value = token.toInt(&ok, 16);//将十六进制的token转化为int
+            if (ok) {
+                stack.push(value);
+            }
+        } else if (isOperator(token[0])) {//如果是操作符，弹出两个数进行计算
+            qint64 right = stack.pop();
+            qint64 left = stack.pop();
+            qint64 result = applyOperator(left, right, token[0]);
+            stack.push(result);
+        }
+    }
+    return stack.top();
+}
+
+// 计算操作的函数
+void Calculator::calculate() {
+    QString expression = display->text(); // 获取输入的表达式
+    QQueue<QString> postfix = infixToPostfix(expression);
+    qint64 result = evaluatePostfix(postfix);
+    // 检查计算结果是否超出预期范围
+    if (result > static_cast<qint64>(0xFFFFFFFFFFFFFFF) || result < -static_cast<qint64>(0xFFFFFFFFFFFFFFF)) {
+        display->setText("Undefined"); // 设置显示框为 "Undefined"
+        return; // 结束函数
+    }
+
+    // 将计算结果转换为十六进制字符串并显示在显示框中
+    display->setText(TenToSixteen(result));
+}
+
 // Calculator 类的构造函数，初始化计算器界面
 Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     // 创建显示框
@@ -165,7 +264,14 @@ void Calculator::onButtonClicked() {
     }
 }
 
+bool delFlag = true;
+
 void Calculator::backspaceClicked() {
+    if (!delFlag) {
+        delFlag = true;
+        return;
+    }
+    delFlag = false;
     std::string Display = display->text().toStdString();
     if (Display.length() > 1) {
         Display.pop_back();
@@ -175,101 +281,4 @@ void Calculator::backspaceClicked() {
     }
 }
 
-bool isHex(QChar c) {// 判断是否为十六进制数
-    return c.isDigit() || (c >= 'A' && c <= 'F');
-}
 
-int precedence(const QString &op) {// 判断操作符的优先级
-    if (op == '+' || op == '-') return 1;
-    if (op == '*' || op == '/') return 2;
-    if (op == '^') return 3;
-    return 0;
-
-}
-
-qint64 applyOperator(qint64 left, qint64 right, QChar op) {// 计算每一个独立表达式
-    switch (op.toLatin1()) {
-        case '+':
-            return left + right;
-        case '-':
-            return left - right;
-        case '*':
-            return left * right;
-        case '/':
-            if (right != 0) return left / right;
-            throw std::runtime_error("Division by zero");
-        case '%':
-            return left % right;
-        case '^':
-            return pow(left, right);
-        default:
-            throw std::runtime_error("Invalid operator");
-    }
-}
-
-// 将中缀表达式处理成后缀表达式
-QQueue<QString> infixToPostfix(const QString &infix) {
-    QStack<QChar> operators;// 保存临时的操作符
-    QQueue<QString> output;// 保存后缀表达式
-    int i = 0;
-    while (i < infix.length()) {
-        if (isHex(infix[i])) {// 判断是否为十六进制数的第一位
-            QString number;// 保存一个十六进制数
-            while (i < infix.length() && isHex(infix[i])) {// 判断是否为十六进制数的后续位
-                number.append(infix[i]);// 添加到 number 中
-                ++i;
-            }
-            output.enqueue(number);// 将 number 添加到 output 队列中
-        } else if (isOperator(infix[i])) {// 判断是否为操作符
-            while (!operators.isEmpty() &&
-                   precedence(operators.top()) >= precedence(infix[i])) {//如果操作符栈不为空且栈顶操作符优先级大于等于当前操作符
-                output.enqueue(QString(operators.pop()));//将栈顶操作符出栈并添加到 output 队列中
-            }
-            operators.push(infix[i]);// 将优先级低的当前操作符入栈
-            ++i;
-        } else {
-            ++i; // 跳过空格或者意外的操作符
-        }
-    }
-    while (!operators.isEmpty()) {
-        output.enqueue(QString(operators.pop()));// 将剩余的操作符添加到 output 队列中
-    }
-    return output;
-}
-
-// 计算一个十六进制的后缀表达式
-qint64 evaluatePostfix(const QQueue<QString> &postfix) {
-    QStack<qint64> stack;
-    QQueue<QString> tempQueue = postfix;
-    while (!tempQueue.isEmpty()) {
-        QString token = tempQueue.dequeue();// 从队列中取出一个 token
-        if (token.length() > 0 && isHex(token[0])) {//如果是数字，入栈
-            bool ok;
-            qint64 value = token.toInt(&ok, 16);//将十六进制的token转化为int
-            if (ok) {
-                stack.push(value);
-            }
-        } else if (isOperator(token[0])) {//如果是操作符，弹出两个数进行计算
-            qint64 right = stack.pop();
-            qint64 left = stack.pop();
-            qint64 result = applyOperator(left, right, token[0]);
-            stack.push(result);
-        }
-    }
-    return stack.top();
-}
-
-// 计算操作的函数
-void Calculator::calculate() {
-    QString expression = display->text(); // 获取输入的表达式
-    QQueue<QString> postfix = infixToPostfix(expression);
-    qint64 result = evaluatePostfix(postfix);
-    // 检查计算结果是否超出预期范围
-    if (result > static_cast<qint64>(0xFFFFFFFFFFFFFFF) || result < -static_cast<qint64>(0xFFFFFFFFFFFFFFF)) {
-        display->setText("Undefined"); // 设置显示框为 "Undefined"
-        return; // 结束函数
-    }
-
-    // 将计算结果转换为十六进制字符串并显示在显示框中
-    display->setText(TenToSixteen(result));
-}
