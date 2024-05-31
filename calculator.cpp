@@ -6,8 +6,9 @@
 #include <QFont> // 包含 QFont 类的头文件，用于设置字体
 #include <QQueue>
 #include <QStack>
-#include <stdexcept>
 #include <iostream>
+
+bool flag = false;//false代表不能输入操作符
 
 
 bool isOperator(QChar c) {// 判断是否为操作符
@@ -17,6 +18,8 @@ bool isOperator(QChar c) {// 判断是否为操作符
 // 将十进制整数转换为十六进制字符串
 QString TenToSixteen(qint64 res) {
     if (res == 0) return "0";
+    bool isNegative = res < 0;// 判断是否为负数
+    if (isNegative) res = -res;
     QString s;
     while (res) {
         qint64 k = res % 16;
@@ -24,6 +27,7 @@ QString TenToSixteen(qint64 res) {
         else s.prepend(QChar(static_cast<int>('A' + k - 10)));
         res = res / 16;
     }
+    if (isNegative) s.prepend('-');
     return s;
 }
 
@@ -39,7 +43,7 @@ int precedence(const QString &op) {// 判断操作符的优先级
 
 }
 
-qint64 applyOperator(qint64 left, qint64 right, QChar op) {// 计算每一个独立表达式
+qint64 applyOperator(qint64 left, qint64 right, QChar op, QLineEdit *display) {// 计算每一个独立表达式
     switch (op.toLatin1()) {
         case '+':
             return left + right;
@@ -49,13 +53,17 @@ qint64 applyOperator(qint64 left, qint64 right, QChar op) {// 计算每一个独
             return left * right;
         case '/':
             if (right != 0) return left / right;
-            throw std::runtime_error("Division by zero");
+            display->setText("除数不能为0！");
+            return 0;
         case '%':
-            return left % right;
+            if (right != 0) return left % right;
+            display->setText("除数不能为0！");
+            return 0;
         case '^':
             return pow(left, right);
         default:
-            throw std::runtime_error("Invalid operator");
+            display->setText("无效的操作符！");
+            return 0;
     }
 }
 
@@ -90,7 +98,7 @@ QQueue<QString> infixToPostfix(const QString &infix) {
 }
 
 // 计算一个十六进制的后缀表达式
-qint64 evaluatePostfix(const QQueue<QString> &postfix) {
+qint64 evaluatePostfix(const QQueue<QString> &postfix, QLineEdit *display) {
     QStack<qint64> stack;
     QQueue<QString> tempQueue = postfix;
     while (!tempQueue.isEmpty()) {
@@ -104,7 +112,7 @@ qint64 evaluatePostfix(const QQueue<QString> &postfix) {
         } else if (isOperator(token[0])) {//如果是操作符，弹出两个数进行计算
             qint64 right = stack.pop();
             qint64 left = stack.pop();
-            qint64 result = applyOperator(left, right, token[0]);
+            qint64 result = applyOperator(left, right, token[0], display);
             stack.push(result);
         }
     }
@@ -115,15 +123,17 @@ qint64 evaluatePostfix(const QQueue<QString> &postfix) {
 void Calculator::calculate() {
     QString expression = display->text(); // 获取输入的表达式
     QQueue<QString> postfix = infixToPostfix(expression);
-    qint64 result = evaluatePostfix(postfix);
+    qint64 result = evaluatePostfix(postfix, display);
     // 检查计算结果是否超出预期范围
     if (result > static_cast<qint64>(0xFFFFFFFFFFFFFFF) || result < -static_cast<qint64>(0xFFFFFFFFFFFFFFF)) {
         display->setText("Undefined"); // 设置显示框为 "Undefined"
         return; // 结束函数
     }
-
     // 将计算结果转换为十六进制字符串并显示在显示框中
-    display->setText(TenToSixteen(result));
+    if (display->text() != "除数不能为0！") {
+        flag = false;
+        display->setText(TenToSixteen(result));
+    }
 }
 
 // Calculator 类的构造函数，初始化计算器界面
@@ -201,6 +211,7 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
 
     // 连接归零按钮的点击信号到槽函数
     connect(zeroButton, &QPushButton::clicked, this, [this]() {
+        flag = false;
         display->setText("0"); // 将显示框的文本设置为空
     });
 
@@ -227,7 +238,6 @@ QPushButton *Calculator::createDesButton(const QString &text, const char *member
     return button;
 }
 
-bool flag = false;//false代表不能输入操作符
 // 按钮点击事件的槽函数
 void Calculator::onButtonClicked() {
     auto *clickedButton = qobject_cast<QPushButton *>(sender()); // 获取被点击的按钮
@@ -244,7 +254,8 @@ void Calculator::onButtonClicked() {
     }
 
     if (clickedText == "=") { // 如果点击的是等于按钮
-        if (display->text().isEmpty()) {
+        auto temp = display->text().toStdString();
+        if (display->text().isEmpty() || isOperator(temp[temp.length() - 1])) {//如果算式的最后一个字符是操作符，返回0
             display->setText("0"); // 如果显示框为空，显示0
         } else {
             flag = true;
@@ -255,12 +266,13 @@ void Calculator::onButtonClicked() {
             return;
         } else if (Display == "0" ||
                    (Display[Display.length() - 1] == '0' && (isOperator(Display[Display.length() - 2])))) {
-
             Display.pop_back();
+            flag = true;
             display->setText(QString::fromStdString(Display));
         }
-
-        display->setText(display->text() + clickedText); // 将按钮文本添加到显示框中
+        auto result = display->text() + clickedText;
+        std::cout << result.toStdString() << std::endl;//输出当前算式，用于调试
+        display->setText(result); // 将按钮文本添加到显示框中
     }
 }
 

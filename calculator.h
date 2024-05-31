@@ -15,15 +15,15 @@ private:
     QLineEdit *display; // 显示输入和结果的文本框
     QPushButton *createButton(const QString &text); // 创建按钮的辅助函数
     QPushButton *createDesButton(const QString &text, const char *member);
-    QPushButton *backspaceButton;
-    void calculate(); // 执行计算操作的辅助函数
 
+    void calculate(); // 执行计算操作的辅助函数
 
 public:
     explicit Calculator(QWidget *parent = nullptr); // 公有构造函数，带一个可选的父指针参数
 
-private slots: // 私有槽函数，用于响应信号
-    void onButtonClicked(); // 槽函数，处理按钮点击事件
+private
+    slots: // 私有槽函数，用于响应信号
+            void onButtonClicked(); // 槽函数，处理按钮点击事件
     void backspaceClicked();// 槽函数，处理删除按钮点击事件
 };
 
