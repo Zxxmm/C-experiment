@@ -105,8 +105,7 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
         display->setText("0"); // 将显示框的文本设置为空
     });
 
-    //创建删除按钮
-    QPushButton *backspaceButton = createDesButton("Backspace",SLOT(backspaceClicked()));
+    QPushButton *backspaceButton = createDesButton("del",SLOT(backspaceClicked()));
     mainLayout->addWidget(backspaceButton, 0, 1); // 添加归零按钮到网格布局的第五行第一列
 
     //连接删除按钮的点击信号到槽函数
@@ -127,9 +126,9 @@ QPushButton *Calculator::createDesButton(const QString &text, const char *member
     connect(button, &QPushButton::clicked,this, &Calculator::backspaceClicked);
     return button;
 }
-// 按钮点击事件的槽函数
-bool flag = true;
 
+bool flag = false;//false代表不能输入操作符
+// 按钮点击事件的槽函数
 void Calculator::onButtonClicked() {
     auto *clickedButton = qobject_cast<QPushButton *>(sender()); // 获取被点击的按钮
     QString clickedText = clickedButton->text(); // 获取按钮文本
@@ -186,6 +185,7 @@ int precedence(const QString &op) {// 判断操作符的优先级
     if (op == '*' || op == '/') return 2;
     if (op == '^') return 3;
     return 0;
+
 }
 
 qint64 applyOperator(qint64 left, qint64 right, QChar op) {// 计算每一个独立表达式
