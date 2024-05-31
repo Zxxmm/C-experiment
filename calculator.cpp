@@ -40,6 +40,7 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     QFont font;
     font.setPointSize(20); // 设置字体大小为20
     display->setFont(font);
+    display->setText("0");
 
     // 创建网格布局，用于排列按钮
     auto *mainLayout = new QGridLayout;
