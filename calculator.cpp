@@ -246,6 +246,9 @@ void Calculator::onButtonClicked() {
 
     //防止重复输入操作符
     if (isOperator(clickedText.toStdString()[0])) {
+        if(display->text()=="0"){
+            goto a;
+        }
         if (flag) {
             flag = false;
         } else {
@@ -269,6 +272,8 @@ void Calculator::onButtonClicked() {
             flag = true;
             display->setText(QString::fromStdString(Display));
         }
+        a:
+        flag=true;
         auto result = display->text() + clickedText;
         std::cout << result.toStdString() << std::endl;//输出当前算式，用于调试
         display->setText(result); // 将按钮文本添加到显示框中
