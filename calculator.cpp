@@ -39,11 +39,10 @@ int precedence(const QString &op) {// 判断操作符的优先级
     if (op == '*' || op == '/' || op == '%') return 2;
     if (op == '^') return 3;
     return 0;
-
 }
 
 qint64 applyOperator(qint64 left, qint64 right, QChar op, QLineEdit *display) {// 计算每一个独立表达式
-    switch (op.toLatin1()) {
+    switch (op.toLatin1()) {//将QChar转化为char
         case '+':
             return left + right;
         case '-':
@@ -82,6 +81,7 @@ QQueue<QString> infixToPostfix(const QString &infix) {
         } else if (isOperator(infix[i])) {// 判断是否为操作符
             while (!operators.isEmpty() &&
                    precedence(operators.top()) >= precedence(infix[i])) {//如果操作符栈不为空且栈顶操作符优先级大于等于当前操作符
+                //遇到比栈顶运算符优先级低的运算符，弹出高优先级的运算符，直到栈顶运算符优先级更低或栈空，将当前运算符入栈
                 output.enqueue(QString(operators.pop()));//将栈顶操作符出栈并添加到 output 队列中
             }
             operators.push(infix[i]);// 将优先级低的当前操作符入栈
@@ -95,6 +95,7 @@ QQueue<QString> infixToPostfix(const QString &infix) {
     }
     return output;
 }
+//A + B * 10 - 2 / 2 -> A B 10 * + 2 2 / -
 
 // 计算一个十六进制的后缀表达式
 qint64 evaluatePostfix(const QQueue<QString> &postfix, QLineEdit *display) {
