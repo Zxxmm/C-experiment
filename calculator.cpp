@@ -10,7 +10,6 @@
 
 bool flag = false;//false代表不能输入操作符
 
-
 bool isOperator(QChar c) {// 判断是否为操作符
     return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^';
 }
@@ -37,7 +36,7 @@ bool isHex(QChar c) {// 判断是否为十六进制数
 
 int precedence(const QString &op) {// 判断操作符的优先级
     if (op == '+' || op == '-') return 1;
-    if (op == '*' || op == '/') return 2;
+    if (op == '*' || op == '/' || op == '%') return 2;
     if (op == '^') return 3;
     return 0;
 
@@ -129,6 +128,7 @@ void Calculator::calculate() {
         display->setText("Undefined"); // 设置显示框为 "Undefined"
         return; // 结束函数
     }
+
     // 将计算结果转换为十六进制字符串并显示在显示框中
     if (display->text() != "除数不能为0！") {
         flag = false;
@@ -246,7 +246,7 @@ void Calculator::onButtonClicked() {
 
     //防止重复输入操作符
     if (isOperator(clickedText.toStdString()[0])) {
-        if(display->text()=="0"){
+        if (display->text() == "0") {
             goto a;
         }
         if (flag) {
@@ -267,13 +267,14 @@ void Calculator::onButtonClicked() {
         if (display->text().toStdString() == "0" && (isOperator(clickedText.toStdString()[0]))) {
             return;
         } else if (Display == "0" ||
-                   (Display[Display.length() - 1] == '0' && (isOperator(Display[Display.length() - 2]))&&(!isOperator(clickedText.toStdString()[0])))) {
+                   (Display[Display.length() - 1] == '0' && (isOperator(Display[Display.length() - 2])) &&
+                    (!isOperator(clickedText.toStdString()[0])))) {
             Display.pop_back();
             flag = true;
             display->setText(QString::fromStdString(Display));
         }
         a:
-        flag=true;
+        flag = true;
         auto result = display->text() + clickedText;
         std::cout << result.toStdString() << std::endl;//输出当前算式，用于调试
         display->setText(result); // 将按钮文本添加到显示框中

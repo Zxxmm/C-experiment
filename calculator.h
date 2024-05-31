@@ -10,8 +10,6 @@ class Calculator : public QWidget {
     Q_OBJECT // Qt 宏，启用信号和槽机制
 
 private:
-    QString currentOperation; // 当前的操作符
-    QString firstOperand; // 第一个操作数
     QLineEdit *display; // 显示输入和结果的文本框
     QPushButton *createButton(const QString &text); // 创建按钮的辅助函数
     QPushButton *createDesButton(const QString &text, const char *member);
