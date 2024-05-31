@@ -52,22 +52,22 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     int pos = 0; // 按钮位置索引
     for (int i = 1; i <= 4; ++i) { // 外层循环，4行
         for (int j = 0; j < 4; ++j) { // 内层循环，4列
-            QPushButton *button = createButton(buttons[pos]); // 创建按钮
+            QPushButton * button = createButton(buttons[pos]); // 创建按钮
             mainLayout->addWidget(button, i, j); // 将按钮添加到网格布局中
             ++pos; // 增加按钮位置索引
         }
     }
 
     // 创建操作符按钮
-    QPushButton *addButton = createButton("+");
-    QPushButton *subButton = createButton("-");
-    QPushButton *mulButton = createButton("*");
-    QPushButton *divButton = createButton("/");
-    QPushButton *modButton = createButton("%");
-    QPushButton *powButton = createButton("^");
+    QPushButton * addButton = createButton("+");
+    QPushButton * subButton = createButton("-");
+    QPushButton * mulButton = createButton("*");
+    QPushButton * divButton = createButton("/");
+    QPushButton * modButton = createButton("%");
+    QPushButton * powButton = createButton("^");
 
     // 创建等号按钮
-    QPushButton *eqButton = createButton("=");
+    QPushButton * eqButton = createButton("=");
 
     // 创建垂直布局，用于排列操作符按钮
     auto *opLayout = new QVBoxLayout;
@@ -80,13 +80,13 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     opLayout->addWidget(eqButton);  // 添加等号按钮到布局
 
     // 将操作符按钮布局添加到网格布局的右侧
-    mainLayout->addWidget(eqButton,4,4);
-    mainLayout->addWidget(addButton,3,4);
-    mainLayout->addWidget(subButton,2,4);
-    mainLayout->addWidget(mulButton,1,4);
-    mainLayout->addWidget(divButton,0,4);
-    mainLayout->addWidget(modButton,0,3);
-    mainLayout->addWidget(powButton,0,2);
+    mainLayout->addWidget(eqButton, 4, 4);
+    mainLayout->addWidget(addButton, 3, 4);
+    mainLayout->addWidget(subButton, 2, 4);
+    mainLayout->addWidget(mulButton, 1, 4);
+    mainLayout->addWidget(divButton, 0, 4);
+    mainLayout->addWidget(modButton, 0, 3);
+    mainLayout->addWidget(powButton, 0, 2);
 
     // 创建垂直布局，将显示框和网格布局添加到布局中
     auto *layout = new QVBoxLayout;
@@ -97,7 +97,7 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
     setWindowTitle("Hex Calculator"); // 设置窗口标题
 
     // 创建归零按钮
-    QPushButton *zeroButton = createButton("归零");
+    QPushButton * zeroButton = createButton("归零");
     mainLayout->addWidget(zeroButton, 0, 0); // 添加归零按钮到网格布局的第五行第一列
 
     // 连接归零按钮的点击信号到槽函数
@@ -105,11 +105,11 @@ Calculator::Calculator(QWidget *parent) : QWidget(parent) {
         display->setText("0"); // 将显示框的文本设置为空
     });
 
-    QPushButton *backspaceButton = createDesButton("del",SLOT(backspaceClicked()));
+    QPushButton * backspaceButton = createDesButton("del", SLOT(backspaceClicked()));
     mainLayout->addWidget(backspaceButton, 0, 1); // 添加归零按钮到网格布局的第五行第一列
 
     //连接删除按钮的点击信号到槽函数
-    connect(backspaceButton,&QPushButton::clicked,this, [this](){backspaceClicked();});
+    connect(backspaceButton, &QPushButton::clicked, this, [this]() { backspaceClicked(); });
 }
 
 // 创建按钮的辅助函数
@@ -119,11 +119,12 @@ QPushButton *Calculator::createButton(const QString &text) {
     connect(button, &QPushButton::clicked, this, &Calculator::onButtonClicked); // 连接按钮的点击信号到槽函数
     return button; // 返回创建的按钮
 }
+
 // 创建删除按钮的辅助函数
 QPushButton *Calculator::createDesButton(const QString &text, const char *member) {
-    QPushButton *button = new QPushButton(text);
+    QPushButton * button = new QPushButton(text);
     button->setMinimumSize(40, 40); // 设置按钮的最小大小
-    connect(button, &QPushButton::clicked,this, &Calculator::backspaceClicked);
+    connect(button, &QPushButton::clicked, this, &Calculator::backspaceClicked);
     return button;
 }
 
@@ -153,10 +154,8 @@ void Calculator::onButtonClicked() {
     } else {
         if (display->text().isEmpty() && (isOperator(clickedText.toStdString()[0]))) {
             return;
-        }
-
-
-        else if (Display == "0"||(Display[Display.length()-1] == '0'&&(isOperator(Display[Display.length()-2])))) {
+        } else if (Display == "0" ||
+                   (Display[Display.length() - 1] == '0' && (isOperator(Display[Display.length() - 2])))) {
 
             Display.pop_back();
             display->setText(QString::fromStdString(Display));
