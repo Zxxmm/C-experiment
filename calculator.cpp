@@ -252,20 +252,19 @@ void Calculator::onButtonClicked() {
             return;
         }
     }
-
     if (clickedText == "=") { // 如果点击的是等于按钮
         auto temp = display->text().toStdString();
-        if (display->text().isEmpty() || isOperator(temp[temp.length() - 1])) {//如果算式的最后一个字符是操作符，返回0
+        if (display->text().toStdString() == "0" || isOperator(temp[temp.length() - 1])) {//如果算式的最后一个字符是操作符，返回0
             display->setText("0"); // 如果显示框为空，显示0
         } else {
             flag = true;
             calculate(); // 执行计算操作
         }
     } else {
-        if (display->text().isEmpty() && (isOperator(clickedText.toStdString()[0]))) {
+        if (display->text().toStdString() == "0" && (isOperator(clickedText.toStdString()[0]))) {
             return;
         } else if (Display == "0" ||
-                   (Display[Display.length() - 1] == '0' && (isOperator(Display[Display.length() - 2])))) {
+                   (Display[Display.length() - 1] == '0' && (isOperator(Display[Display.length() - 2]))&&(!isOperator(clickedText.toStdString()[0])))) {
             Display.pop_back();
             flag = true;
             display->setText(QString::fromStdString(Display));
